@@ -1,6 +1,8 @@
 import html
 import io
+import json
 import os
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -146,6 +148,19 @@ def format_date(date_str: str) -> str:
         return str(date_str)[:19]
 
 
+def clean_error_message(error: Any) -> str:
+    """Sanitize error messages to prevent accidental credential or token leakage."""
+    msg = str(error)
+    # Mask OAuth access & refresh tokens
+    msg = re.sub(r'ya29\.[a-zA-Z0-9_\-]+', '[REDACTED_ACCESS_TOKEN]', msg)
+    msg = re.sub(r'1//[a-zA-Z0-9_\-]+', '[REDACTED_REFRESH_TOKEN]', msg)
+    # Mask Supabase service role keys
+    msg = re.sub(r'sb_[a-zA-Z0-9_\-]+', '[REDACTED_API_KEY]', msg)
+    # Mask client secrets
+    msg = re.sub(r'GOCSPX-[a-zA-Z0-9_\-]+', '[REDACTED_SECRET]', msg)
+    return html.escape(msg)
+
+
 # -----------------------------------------------------------------------------
 # Core State & Services
 # -----------------------------------------------------------------------------
@@ -196,7 +211,7 @@ with st.sidebar:
                 st.success(f"Sync complete! Saved {res.get('saved_transactions', 0)} verified bills.")
                 st.rerun()
             except Exception as exc:
-                st.error(f"Sync error: {exc}")
+                st.error(f"Sync error: {clean_error_message(exc)}")
 
     st.markdown("---")
     st.caption("Utility: **SBPDCL (South Bihar Power)**")
@@ -585,7 +600,8 @@ elif page == "✉️ Email Activity":
             return
 
         for act in items:
-            v_status = act.get("verification_status", "review")
+            raw_status = str(act.get("verification_status", "review")).lower()
+            v_status = raw_status if raw_status in ("verified", "review", "rejected") else "review"
             badge_class = f"badge-{v_status}"
             badge_text = "Verified SBPDCL" if v_status == "verified" else ("Review Needed" if v_status == "review" else "Rejected")
 
@@ -701,23 +717,25 @@ elif page == "⚙️ Settings":
             if token_upload:
                 try:
                     tok_content = token_upload.read().decode("utf-8")
+                    json.loads(tok_content)  # Validate JSON structure
                     token_file = BASE_DIR / "backend" / "token.json"
                     token_file.write_text(tok_content, encoding="utf-8")
                     st.success("Uploaded token.json saved successfully!")
                     st.rerun()
                 except Exception as e_tok:
-                    st.error(f"Error saving token file: {e_tok}")
+                    st.error(f"Invalid token file: {clean_error_message(e_tok)}")
 
             token_pasted = st.text_area("Or Paste token.json contents:", placeholder='{"token": "ya29...", "refresh_token": "..."}', height=70)
             if st.button("Save Pasted Token"):
                 if token_pasted.strip():
                     try:
+                        json.loads(token_pasted.strip())  # Validate JSON structure
                         token_file = BASE_DIR / "backend" / "token.json"
                         token_file.write_text(token_pasted.strip(), encoding="utf-8")
                         st.success("Token saved successfully!")
                         st.rerun()
                     except Exception as e_paste:
-                        st.error(f"Error: {e_paste}")
+                        st.error(f"Invalid JSON: {clean_error_message(e_paste)}")
 
     st.markdown("---")
 

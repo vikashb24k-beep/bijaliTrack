@@ -1,21 +1,43 @@
-# Python
+# Python & Virtual Environments
 venv/
-__pycache__/
-*.pyc
+env/
+ENV/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
 
-# Environment
+# Environment Variables & Secrets
 .env
 .env.*
 !.env.example
-
-# Node
-node_modules/
-dist/
-
-# IDE
-.vscode/
-.idea/
-
-# Credentials
 token.json
 credentials.json
+backend/token.json
+backend/credentials.json
+
+# Local Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/bijlitrack.db
+
+# Node & Frontend Build Artifacts
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+
+# IDE & Editor Configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS Temporary Files & Logs
+*.log
+.DS_Store
+Thumbs.db
+desktop.ini
