@@ -79,7 +79,23 @@ It connects to your Gmail account using the Gmail API, automatically detects Pho
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Quick Start with Streamlit (Unified App)
+
+You can run BijliTrack as a single, full-featured Python Streamlit application with no separate node/frontend build required:
+
+```bash
+# Launch BijliTrack Streamlit App
+backend\venv\Scripts\streamlit.exe run streamlit_app.py
+```
+This opens the BijliTrack dashboard at `http://localhost:8501` featuring:
+- 📊 **Dashboard:** 4 live summary metric cards, interactive Plotly monthly bar chart, summary table, and date range filters (6m, 12m, current year, custom).
+- 💳 **Transactions Ledger:** Complete searchable/filterable payment history, instant CSV export, and receipt detection tool.
+- ✉️ **Email Activity:** Full audit trail for Gmail PhonePe receipts (Verified, Review Needed, Rejected), rejection reasons, and direct Gmail inbox links.
+- ⚙️ **Settings:** One-click Gmail OAuth connection, default consumer CA number, sync interval, and database status.
+
+---
+
+## 🏗️ Alternative: React + FastAPI Setup
 
 ### 1. Backend Setup
 

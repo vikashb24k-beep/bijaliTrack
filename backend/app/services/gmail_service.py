@@ -38,10 +38,26 @@ class GmailService:
 
     @property
     def credentials_exist(self) -> bool:
+        if not self.credentials_path.exists():
+            env_creds = os.getenv("GMAIL_CREDENTIALS_JSON")
+            if env_creds:
+                try:
+                    self.credentials_path.parent.mkdir(parents=True, exist_ok=True)
+                    self.credentials_path.write_text(env_creds, encoding="utf-8")
+                except Exception:
+                    pass
         return self.credentials_path.exists()
 
     @property
     def token_exists(self) -> bool:
+        if not self.token_path.exists():
+            env_tok = os.getenv("GMAIL_TOKEN_JSON")
+            if env_tok:
+                try:
+                    self.token_path.parent.mkdir(parents=True, exist_ok=True)
+                    self.token_path.write_text(env_tok, encoding="utf-8")
+                except Exception:
+                    pass
         return self.token_path.exists()
 
     def get_auth_status(self) -> Dict[str, Any]:
